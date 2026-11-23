@@ -1,0 +1,26 @@
+# DICOM -> MP4 conversion parameters (scripts/dcm2video.py).
+#
+# `default` reproduces the settings used to build the UroJEPA videos:
+# window level 50 / width 180 applied to the stored pixel values, 512 x 512 frames,
+# 10 frames per second, slices ordered by InstanceNumber.
+#
+# Scanners that need other settings get their own entry under `devices`. A profile is
+# used when it is named with `--device NAME`, or automatically when every tag listed
+# under `match` contains the given text (case-insensitive). Unset keys fall back to
+# `default`. Example:
+#
+# devices:
+#   scanner_b:
+#     match: {Manufacturer: GE, ManufacturerModelName: Revolution}
+#     rescale: true          # stored values are not HU: apply RescaleSlope/RescaleIntercept first
+#     window_center: 50      # then window in HU
+#     window_width: 180
+
+default:
+  window_center: 50
+  window_width: 180
+  rescale: false
+  size: 512
+  fps: 10
+
+devices: {}

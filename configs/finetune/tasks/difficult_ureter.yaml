@@ -1,0 +1,11 @@
+# Difficult ureter (positive: difficult ureteral access during primary URSL)
+_base_: ../base_vitb16.yaml
+
+folder: outputs/finetune/difficult_ureter
+
+data:
+  train: data/splits/difficult_ureter/train.csv
+  val: data/splits/difficult_ureter/val.csv
+  test: data/splits/difficult_ureter/test.csv
+  external:
+    external: data/splits/difficult_ureter/external.csv

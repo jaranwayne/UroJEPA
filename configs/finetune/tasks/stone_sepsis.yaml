@@ -1,0 +1,11 @@
+# Ureteral stone-associated sepsis (positive: sepsis from an obstructing stone during the index admission)
+_base_: ../base_vitb16.yaml
+
+folder: outputs/finetune/stone_sepsis
+
+data:
+  train: data/splits/stone_sepsis/train.csv
+  val: data/splits/stone_sepsis/val.csv
+  test: data/splits/stone_sepsis/test.csv
+  external:
+    external: data/splits/stone_sepsis/external.csv

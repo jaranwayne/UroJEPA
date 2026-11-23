@@ -1,0 +1,11 @@
+# Urosepsis after ureteroscopic lithotripsy (positive: sepsis within 48 h of primary URSL)
+_base_: ../base_vitb16.yaml
+
+folder: outputs/finetune/urosepsis_ursl
+
+data:
+  train: data/splits/urosepsis_ursl/train.csv
+  val: data/splits/urosepsis_ursl/val.csv
+  test: data/splits/urosepsis_ursl/test.csv
+  external:
+    external: data/splits/urosepsis_ursl/external.csv

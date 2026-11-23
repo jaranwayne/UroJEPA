@@ -1,0 +1,33 @@
+[build-system]
+requires = ["setuptools>=61"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "urojepa"
+version = "1.0.0"
+description = "UroJEPA: self-supervised 3D CT foundation model for ureteral stone disease (V-JEPA 2.1 pre-training and fine-tuning)"
+readme = "README.md"
+license = { file = "LICENSE" }
+requires-python = ">=3.9"
+dependencies = ["torch>=2.1", "numpy", "pandas", "pyyaml", "scikit-learn", "opencv-python-headless", "pydicom"]
+
+[project.optional-dependencies]
+decord = ["decord"]
+test = ["pytest"]
+
+[project.urls]
+Homepage = "https://github.com/jaranwayne/UroJEPA"
+
+[tool.setuptools.packages.find]
+include = ["urojepa*"]
+
+[tool.black]
+line-length = 119
+
+[tool.isort]
+profile = "black"
+line_length = 119
+
+[tool.pytest.ini_options]
+pythonpath = ["."]
+testpaths = ["tests"]

@@ -1,0 +1,9 @@
+torch>=2.1
+numpy
+pandas
+pyyaml
+scikit-learn
+opencv-python-headless
+pydicom                 # DICOM -> video conversion (scripts/dcm2video.py)
+# Optional, faster video decoding on Linux (used automatically when installed):
+# decord

@@ -1,0 +1,11 @@
+# Spontaneous stone passage (positive: FAILED passage, stone still present on CT at 28 d)
+_base_: ../base_vitb16.yaml
+
+folder: outputs/finetune/spontaneous_passage
+
+data:
+  train: data/splits/spontaneous_passage/train.csv
+  val: data/splits/spontaneous_passage/val.csv
+  test: data/splits/spontaneous_passage/test.csv
+  external:
+    external: data/splits/spontaneous_passage/external.csv

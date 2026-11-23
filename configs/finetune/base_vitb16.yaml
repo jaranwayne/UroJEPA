@@ -1,0 +1,63 @@
+# End-to-end fine-tuning of a ViT-B/16 encoder with an attentive probe for one binary
+# outcome. Task configs in tasks/ inherit from this file and set the data paths.
+#
+# Encoder initialisation (`model.pretrained`, key chosen automatically):
+#   UroJEPA    outputs/pretrain/urojepa_vitb16/latest.pth.tar
+#   UroJEPA†   outputs/pretrain/urojepa_dagger_vitb16/latest.pth.tar
+#   V-JEPA 2.1 checkpoints/vjepa2_1_vitb_dist_vitG_384.pt (natural-video baseline)
+
+folder: outputs/finetune/task       # results go to <folder>[/frac<f>]/seed<seed>
+seed: 0
+threshold: 0.5                      # probability threshold for the predicted class
+
+data:
+  root: null
+  train: null
+  val: null
+  test: null
+  external: {}                      # {name: csv} cohorts evaluated with the selected checkpoint
+  num_frames: 16
+  frame_steps: [1, 2]               # training clips drawn as in pre-training
+  crop_size: 224                    # shorter side resized to 224, 224 x 224 crop
+  train_fraction: 1.0               # label-efficiency runs: 0.1, 0.25, 0.5, 0.75
+  train_fraction_seed: null         # null = use `seed`
+  eval_num_clips: 9                 # clips per video at test time, logits averaged
+  eval_frame_step: 1
+  eval_batch_size: 4                # videos per GPU at evaluation
+  num_workers: 8
+
+data_aug:                           # training only; evaluation uses resize + centre crop
+  random_resize_scale: [0.3, 1.0]
+  random_resize_aspect_ratio: [0.75, 1.33]
+  horizontal_flip: true
+  brightness: 0.0
+  contrast: 0.0
+
+model:
+  model_name: vit_base
+  patch_size: 16
+  tubelet_size: 2
+  pretrained: null
+  checkpoint_key: auto
+  head: attentive                   # attentive probe ('mean_linear' also available)
+  head_depth: 4
+  head_num_heads: 16
+  num_classes: 2
+  drop_path: 0.0
+  interpolate_rope: true
+  modality_embedding: true
+  use_sdpa: true
+  use_activation_checkpointing: false
+
+optimization:
+  epochs: 30
+  batch_size: 16                    # total over all GPUs
+  lr: 1.0e-3                        # peak learning rate
+  warmup_epochs: 5                  # linear warm-up, then cosine decay
+  start_lr: 0.0
+  final_lr: 0.0
+  betas: [0.9, 0.999]
+  eps: 1.0e-8
+  weight_decay: 0.01
+  dtype: bfloat16
+  select_metric: auroc              # validation metric for checkpoint selection

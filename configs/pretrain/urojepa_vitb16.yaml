@@ -1,0 +1,81 @@
+# UroJEPA: V-JEPA 2.1 ViT-B/16 pre-trained on CT videos from random initialisation.
+# Settings not specific to CT follow the V-JEPA 2.1 ViT-B config
+# (configs/train_2_1/vitb16/pretrain-256px-16f.yaml in facebookresearch/vjepa2).
+
+folder: outputs/pretrain/urojepa_vitb16
+
+data:
+  manifest: data/pretrain_manifest.csv  # patient_id,video_path,num_frames (scripts/build_manifest.py)
+  root: null                            # prefix for relative video paths
+  num_frames: 16                        # 16-slice clips
+  frame_steps: [1, 2]                   # local (5-mm spacing) and broader (10-mm spacing) scale
+  crop_size: 224
+  patch_size: 16
+  tubelet_size: 2
+  batch_size: 48                        # per GPU
+  num_workers: 8
+  pin_mem: true
+  persistent_workers: true
+
+data_aug:                               # shared by all 16 slices of a clip
+  random_resize_scale: [0.3, 1.0]
+  random_resize_aspect_ratio: [0.75, 1.35]
+  horizontal_flip: true
+  brightness: 0.1                       # fraction of the 0-255 range
+  contrast: 0.2
+
+mask:
+  - aspect_ratio: [0.75, 1.5]
+    num_blocks: 8
+    spatial_scale: [0.15, 0.15]
+    temporal_scale: [1.0, 1.0]
+    max_temporal_keep: 1.0
+    max_keep: null
+  - aspect_ratio: [0.75, 1.5]
+    num_blocks: 2
+    spatial_scale: [0.7, 0.7]
+    temporal_scale: [1.0, 1.0]
+    max_temporal_keep: 1.0
+    max_keep: null
+
+loss:
+  loss_exp: 1.0
+  predict_all: true                     # dense predictive loss (masked + context tokens)
+  weight_distance_loss: true
+  lambda_context: 0.5
+  lambda_progressive: true
+  context_loss_warmup_iters: [15000, 30000]
+
+model:
+  model_name: vit_base
+  num_levels: 4                         # deep self-supervision on 4 encoder levels
+  pred_depth: 12
+  pred_embed_dim: 384
+  pred_num_heads: 12
+  zero_init_mask_tokens: true
+  interpolate_rope: true
+  modality_embedding: true
+  use_activation_checkpointing: true
+  init_checkpoint: null                 # UroJEPA: random initialisation
+  init_checkpoint_key: auto
+
+meta:
+  seed: 0
+  dtype: bfloat16
+  use_sdpa: true
+  resume: true                          # resume from <folder>/latest.pth.tar if present
+  save_every_freq: 10
+
+optimization:
+  epochs: 50
+  ipe: 300                              # iterations per epoch
+  ipe_scale: 1.25
+  warmup: 40
+  start_lr: 1.0e-4
+  lr: 6.0e-4
+  final_lr: 6.0e-4
+  weight_decay: 0.04
+  final_weight_decay: 0.04
+  ema: [0.99925, 0.99925]
+  betas: [0.9, 0.999]
+  eps: 1.0e-8
