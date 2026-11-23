@@ -7,7 +7,7 @@ UroJEPA is a V-JEPA 2.1 ViT-B/16 encoder pre-trained on unlabelled non-contrast 
 * **UroJEPA**: CT pre-training from random weights
 * **UroJEPA†**: CT pre-training from the public natural-video V-JEPA 2.1 weights
 
-Built on [V-JEPA 2 / 2.1](https://github.com/facebookresearch/vjepa2). No patient data or trained weights are included.
+Built on [V-JEPA 2 / 2.1](https://github.com/facebookresearch/vjepa2). No patient data are included.
 
 ## Installation
 
@@ -16,6 +16,19 @@ git clone https://github.com/jaranwayne/UroJEPA.git && cd UroJEPA
 pip install -r requirements.txt      # install PyTorch for your CUDA version first
 python -m pytest                     # optional checks
 ```
+
+## Pretrained weights
+
+| Model | Initialisation | CT pre-training | Download |
+|---|---|---|---|
+| UroJEPA† (ViT-B/16) | V-JEPA 2.1 ViT-B/16 | 50 epochs | [Google Drive](https://drive.google.com/file/d/1uzPr2AKgcMTRYobSCzvRNjzOEVWJhAHv/view?usp=sharing) (1.7 GB) |
+
+```bash
+pip install gdown
+mkdir -p checkpoints && gdown 1uzPr2AKgcMTRYobSCzvRNjzOEVWJhAHv -O checkpoints/vjepa21_ct_pretrained_init_final_ep50.pth.tar
+```
+
+The file is a full pre-training checkpoint (encoder, predictor, EMA target encoder, optimiser state). `finetune.py` loads the EMA target encoder from it automatically; pass it as `model.pretrained` (see below).
 
 ## Data preparation
 
@@ -60,16 +73,16 @@ Clips are 16 slices at two scales (5-mm and 10-mm spacing), sampled patient → 
 ## Fine-tuning and evaluation
 
 ```bash
-# one outcome, one seed
+# one outcome, one seed, from the released UroJEPA† weights
 python finetune.py --config configs/finetune/tasks/stone_sepsis.yaml \
-    --opts seed=0 model.pretrained=outputs/pretrain/urojepa_dagger_vitb16/latest.pth.tar \
+    --opts seed=0 model.pretrained=checkpoints/vjepa21_ct_pretrained_init_final_ep50.pth.tar \
            folder=outputs/finetune/stone_sepsis/urojepa_dagger
 
 # four outcomes x five seeds
-bash scripts/run_finetune.sh urojepa_dagger outputs/pretrain/urojepa_dagger_vitb16/latest.pth.tar
+bash scripts/run_finetune.sh urojepa_dagger checkpoints/vjepa21_ct_pretrained_init_final_ep50.pth.tar
 
 # label efficiency (10/25/50/75 % of training patients)
-bash scripts/run_label_efficiency.sh urojepa_dagger outputs/pretrain/urojepa_dagger_vitb16/latest.pth.tar
+bash scripts/run_label_efficiency.sh urojepa_dagger checkpoints/vjepa21_ct_pretrained_init_final_ep50.pth.tar
 
 # mean ± SD over seeds
 python scripts/summarize.py --root outputs/finetune
