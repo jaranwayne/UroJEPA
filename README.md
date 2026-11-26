@@ -50,12 +50,11 @@ The default parameters (window 50/180, 512 × 512, 10 fps) are those used in the
 python scripts/build_manifest.py --video-dir data/videos --output data/pretrain_manifest.csv \
     --exclude-patients data/labelled_patients.csv --min-frames 16
 
-# one labelled CSV per outcome: patient_id,video_path,label  ->  7:1:2 stratified split
-python scripts/build_manifest.py --input data/stone_sepsis_labels.csv --output data/stone_sepsis_labels.csv
-python scripts/make_splits.py --labels data/stone_sepsis_labels.csv --out data/splits/stone_sepsis
+# add num_frames to a labelled CSV (columns: patient_id,video_path,label)
+python scripts/build_manifest.py --input data/splits/stone_sepsis/train.csv --output data/splits/stone_sepsis/train.csv
 ```
 
-Put an external cohort, if any, at `data/splits/<task>/external.csv`. Tasks: `stone_sepsis`, `urosepsis_ursl`, `difficult_ureter`, `spontaneous_passage`.
+For each outcome, put `train.csv`, `val.csv` and `test.csv` (7:1:2, outcome-stratified) and, if any, `external.csv` in `data/splits/<task>/`. Tasks: `stone_sepsis`, `urosepsis_ursl`, `difficult_ureter`, `spontaneous_passage`.
 
 ## Pre-training
 

@@ -37,25 +37,6 @@ def test_subsample_patients_is_stratified_and_patient_level():
     assert a.equals(b)
 
 
-def test_make_splits(tmp_path):
-    df = _labels()
-    df.to_csv(tmp_path / "labels.csv", index=False)
-    for extra in ([], ["--group-by-patient"]):
-        out = tmp_path / ("split_g" if extra else "split")
-        subprocess.run(
-            [sys.executable, os.path.join(ROOT, "scripts", "make_splits.py"), "--labels", str(tmp_path / "labels.csv"),
-             "--out", str(out), "--seed", "0", *extra],
-            check=True, cwd=ROOT, capture_output=True,
-        )
-        tr, va, te = (pd.read_csv(out / f"{s}.csv") for s in ("train", "val", "test"))
-        assert len(tr) + len(va) + len(te) == len(df)
-        assert abs(len(te) / len(df) - 0.2) < 0.02 and abs(len(va) / len(df) - 0.1) < 0.02
-        for part in (tr, va, te):  # stratified
-            assert abs(part.label.mean() - df.label.mean()) < 0.03
-        if extra:
-            assert not (set(tr.patient_id) & set(te.patient_id))
-
-
 def test_read_manifest_root(tmp_path):
     df = _labels(5)
     df.to_csv(tmp_path / "m.csv", index=False)
